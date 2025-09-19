@@ -1,38 +1,28 @@
 from fastapi import FastAPI
-from db import events_collection
-from pydantic import BaseModel
+import cloudinary
+from dotenv import load_dotenv
+import os
+from routes.events import events_router
+from routes.users import users_router
 
-class EventModel(BaseModel):
-    title: str
-    description: str
+load_dotenv()
+
+# Configure cloudinary
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+)
 
 
 app = FastAPI()
 
+
 @app.get("/")
 def get_home():
-    return { "message": "You are on the home page"}
-
-# Events endpoints
-@app.get("/events")
-def get_events():
-    # Get all events from database
-    events = events_collection.find().to_list()
-    # Return response
-    return {"data": events}
-
-@app.post("/events")
-def post_event(event: EventModel):
-    # Insert event into database
-    events_collection.insert_one(event.model_dump())
-    # Return response
-    return {"message": "Event added successfully"}
+    return {"message": "You are on the home page"}
 
 
-@app.get("/events/{event_id}")
-def get_event_by_id(event_id):
-    # Get event from database by id
-    event = events_collection.find_one({"_id": event_id})
-    # Return response
-    return { "data": event}
-
+# Include routers
+app.include_router(events_router)
+app.include_router(users_router)
