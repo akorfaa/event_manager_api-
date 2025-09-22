@@ -115,6 +115,5 @@ def delete_event(event_id):
         raise HTTPException(
             status.HTTP_422_UNPROCESSABLE_ENTITY, "Sorry, no event found to delete!"
         )
-    events_collection.delete_one(filter={"_id": ObjectId(event_id)})
     # Return response
     return {"message": "Event deleted successfully!"}
